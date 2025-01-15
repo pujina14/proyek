@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kalkulator Kebutuhan Pupuk dan pH</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f9f9f9;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 700px;
+            margin: 30px auto;
+            background: #ffffff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #4CAF50;
+        }
+        label {
+            display: block;
+            margin: 10px 0 5px;
+        }
+        select, input[type="number"] {
+            width: 100%;
+            padding: 8px;
+            margin: 5px 0 15px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 10px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            background: #e8f5e9;
+            border: 1px solid #4CAF50;
+            border-radius: 4px;
+        }
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container" id="fertilizerSection">
+        <h1>Kalkulator Kebutuhan Pupuk</h1>
+        <form id="fertilizerForm">
+            <label for="plantType">Pilih Jenis Tanaman:</label>
+            <select id="plantType" name="plantType" required>
+                <option value="" disabled selected>Pilih Tanaman</option>
+                <option value="Padi">Padi</option>
+                <option value="Jagung">Jagung</option>
+                <option value="Kedelai">Kedelai</option>
+                <option value="Tomat">Tomat</option>
+                <option value="Kentang">Kentang</option>
+                <option value="Teh">Teh</option>
+                <option value="Stroberi">Stroberi</option>
+                <option value="Blueberry">Blueberry</option>
+                <option value="Gandum">Gandum</option>
+                <option value="Alfalfa">Alfalfa</option>
+            </select>
+
+            <label for="landArea">Luas Lahan (hektar):</label>
+            <input type="number" id="landArea" name="landArea" min="0.1" step="0.1" required>
+
+            <label for="desiredNutrient">Nutrisi yang Diinginkan (kg/ha):</label>
+            <input type="number" id="desiredNutrient" name="desiredNutrient" min="1" required>
+
+            <label for="fertilizerPercentage">Persentase Nutrisi dalam Pupuk (%):</label>
+            <input type="number" id="fertilizerPercentage" name="fertilizerPercentage" min="1" max="100" required>
+
+            <button type="button" onclick="calculateFertilizer()">Hitung Kebutuhan Pupuk</button>
+            <button type="button" onclick="switchToPHCalculator()">Hitung Nilai pH</button>
+        </form>
+
+        <div class="result" id="fertilizerResult" style="display: none;">
+            <h2>Hasil Perhitungan</h2>
+            <p id="fertilizerAmount"></p>
+        </div>
+    </div>
+
+    <div class="container hidden" id="phSection">
+        <h1>Kalkulator Nilai pH</h1>
+        <form id="phForm">
+            <label for="hydrogenConcentration">Konsentrasi Ion Hidrogen (mol/L):</label>
+            <input type="number" id="hydrogenConcentration" name="hydrogenConcentration" min="0" step="any" required>
+
+            <button type="button" onclick="calculatePH()">Hitung pH</button>
+            <button type="button" onclick="switchToFertilizerCalculator()">Kembali ke Kalkulator Pupuk</button>
+        </form>
+
+        <div class="result" id="phResult" style="display: none;">
+            <h2>Hasil Perhitungan</h2>
+            <p id="phValue"></p>
+            <button type="button" onclick="suggestPlants()">Lihat Tanaman yang Cocok</button>
+        </div>
+
+        <div class="result hidden" id="plantSuggestions">
+            <h2>Tanaman yang Cocok</h2>
+            <p id="suggestedPlants"></p>
+        </div>
+    </div>
+
+    <script>
+        function switchToPHCalculator() {
+            document.getElementById('fertilizerSection').classList.add('hidden');
+            document.getElementById('phSection').classList.remove('hidden');
+        }
+
+        function switchToFertilizerCalculator() {
+            document.getElementById('phSection').classList.add('hidden');
+            document.getElementById('fertilizerSection').classList.remove('hidden');
+        }
+
+        function calculateFertilizer() {
+            const landArea = parseFloat(document.getElementById('landArea').value);
+            const desiredNutrient = parseFloat(document.getElementById('desiredNutrient').value);
+            const fertilizerPercentage = parseFloat(document.getElementById('fertilizerPercentage').value);
+
+            if (isNaN(landArea) || isNaN(desiredNutrient) || isNaN(fertilizerPercentage) || landArea <= 0 || desiredNutrient <= 0 || fertilizerPercentage <= 0) {
+                alert('Harap isi semua bidang dengan benar!');
+                return;
+            }
+
+            const fertilizerNeededPerHectare = (desiredNutrient * 100) / fertilizerPercentage;
+            const totalFertilizerNeeded = fertilizerNeededPerHectare * landArea;
+
+            document.getElementById('fertilizerAmount').textContent = `Total Pupuk yang Dibutuhkan: ${totalFertilizerNeeded.toFixed(2)} kg`;
+            document.getElementById('fertilizerResult').style.display = 'block';
+        }
+
+        function calculatePH() {
+            const hydrogenConcentration = parseFloat(document.getElementById('hydrogenConcentration').value);
+
+            if (isNaN(hydrogenConcentration) || hydrogenConcentration <= 0) {
+                alert('Masukkan konsentrasi ion hidrogen yang benar!');
+                return;
+            }
+
+            const ph = -Math.log10(hydrogenConcentration);
+            document.getElementById('phValue').textContent = `Nilai pH: ${ph.toFixed(2)}`;
+            document.getElementById('phResult').style.display = 'block';
+        }
+
+        function suggestPlants() {
+            const phValue = parseFloat(document.getElementById('phValue').textContent.split(':')[1]);
+
+            let plants;
+            if (phValue >= 6 && phValue <= 7) {
+                plants = 'Padi, Jagung, Tomat, Kedelai, Gandum';
+            } else if (phValue < 6) {
+                plants = 'Kentang, Stroberi, Blueberry, Teh';
+            } else {
+                plants = 'Alfalfa, Kapas, Bit Gula';
+            }
+
+            document.getElementById('suggestedPlants').textContent = `Tanaman yang Cocok untuk pH ${phValue.toFixed(1)}: ${plants}`;
+            document.getElementById('plantSuggestions').classList.remove('hidden');
+        }
+    </script>
+</body>
+</html>
